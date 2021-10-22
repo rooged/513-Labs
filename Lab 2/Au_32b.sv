@@ -6,12 +6,11 @@ module Au_32b  (input logic [31:0] a,b,	// operands
 				output logic [31:0] s, //the result of add/sub
 				output logic [31:0] hi,	//left half of product/remainder register for mult/div
 				output logic [31:0] lo, //right half of product/remainder register for mult/div
-				output logic zero, //zero flag
-				output logic [31:0] cout
+				output logic zero //zero flag
 				);
-				
-wire C0,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14,C15,C16,C17,C18,C19,C20,C21,C22,C23,C24,C25,C26,C27,C28,C29,C30,C31;
+logic [31:0] cout;
 
+reg C0,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14,C15,C16,C17,C18,C19,C20,C21,C22,C23,C24,C25,C26,C27,C28,C29,C30,C31;
 //complements each bit of b (32 bits total) if ALUop = 01
 xor X0(C0, ALUop, b[0]), 
     X1(C1, ALUop, b[1]), 
@@ -79,7 +78,22 @@ carry_lookahead_adder CA0(.a(a[0]),.b(C0),.cin(ALUop),.s(s[0]),.cout(cout[0])), 
                       CA28(.a(a[28]),.b(C28),.cin(cout[27]),.s(s[28]),.cout(cout[28])), //Bit 29
                       CA29(.a(a[29]),.b(C29),.cin(cout[28]),.s(s[29]),.cout(cout[29])), //Bit 30
                       CA30(.a(a[30]),.b(C30),.cin(cout[29]),.s(s[30]),.cout(cout[30])), //Bit 31
-                      CA31(.a(a[31]),.b(C31),.cin(cout[30]),.s(s[31]),.cout(cout[31])); //Bit 32
+                      CA31(.a(a[31]),.b(C31),.cin(cout[30]),.s(s[31]),.cout(cout[31])); //Bit 32		
+
+
+always @ (posedge clk) begin
+
+if (ALUop == 11) begin
+
+assign a = hi; //remainder
+assign b = lo; //divisor
+ hi <<1; //shifts the remainder left 1 bit
+
+
+end
+
+
+end
 
 endmodule
 
@@ -109,4 +123,3 @@ assign C[4] = G[3] | (P[3] & G[2]) | (P[3] & P[2] & G[1]) |
 
 
 endmodule
-
