@@ -81,19 +81,36 @@ carry_lookahead_adder CA0(.a(a[0]),.b(C0),.cin(ALUop),.s(s[0]),.cout(cout[0])), 
                       CA31(.a(a[31]),.b(C31),.cin(cout[30]),.s(s[31]),.cout(cout[31])); //Bit 32		
 
 
-always @ (posedge clk) begin
+always @ (posedge clk or posedge rst_n) begin
 
-if (ALUop == 11) begin
+	if (ALUop == 2'b11) 
+	begin
+	a[31:0] = 1 << a[31:0]; //shift dividend left 1 bit
 
-assign a = hi; //remainder
-assign b = lo; //divisor
- hi <<1; //shifts the remainder left 1 bit
+		for(reg i=0; i<=32; i++)
+		begin
+		a[31:15] = a[31:15] - b;
+			if(a[31:15] >= 0)
+			begin
+			a[31:0] = 1 << a[31:0];
+			a[0:0] = 1;
+			end
+			if(a[31:15] < 0) begin
+			a[31:15] = a[31:15] + b;
+			a[31:15] = 1 << a[31:15];
+			a[0:0] = 0;
+			end
 
+		end
+	a[31:15] = 1 >> a[31:15];
+
+	end
+	assign a[31:15] = hi;
+	assign a[15:0] = lo;
 
 end
 
 
-end
 
 endmodule
 
