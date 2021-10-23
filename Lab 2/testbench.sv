@@ -8,8 +8,7 @@ module testbench;
 	wire [31:0] hi;
 	wire [31:0] lo;
 	wire zero;
-	logic [4:0] i, j;
-	logic [3:0] k;
+	logic [63:0] c;
 	
 	Au_32b uut (
 		.a(a),
@@ -24,22 +23,53 @@ module testbench;
 	);
 	
 	initial begin
-		a <= 0;
-		b <= 0;
-		cin <= 0;
-		ctrl <= 0;
+		ALUop <= 2'b10;
 		
-		//test addition for no carry in
-		for (i = 0; i < 16; i = i + 1) begin
-			for (j = 0; j < 16; j = j + 1) begin
-				a = i;
-				b = j;
-				#10;
-				if ({cout, s} != (i + j)) begin
-					$error("a: %b, b: %b, {cout, s}: %b, cin: %b, ctrl: %b. i: %b, j: %b = %b",
-					a, b, {cout, s}, cin, ctrl, i, j, i + j);
-				end
-			end
+		a <= 32'b111;
+		b <= 32'b11;
+		c <= a * b;
+		#10
+		if (hi != c[63:32] & lo != c[31:0]) begin
+			$error("a: %b, b: %b, hi: %hi, lo: %lo", a, b, hi, lo);
+		end
+		
+		a <= 32'b1;
+		b <= 32'b10;
+		c <= a * b;
+		#10
+		if (hi != c[63:32] & lo != c[31:0]) begin
+			$error("a: %b, b: %b, hi: %hi, lo: %lo", a, b, hi, lo);
+		end
+		
+		a <= 32'b0;
+		b <= 32'b1;
+		c <= a * b;
+		#10
+		if (hi != c[63:32] & lo != c[31:0]) begin
+			$error("a: %b, b: %b, hi: %hi, lo: %lo", a, b, hi, lo);
+		end
+		
+		a <= 32'b11110100001001000000;
+		b <= 32'b1111010000100100000;
+		c <= a * b;
+		#10
+		if (hi != c[63:32] & lo != c[31:0]) begin
+			$error("a: %b, b: %b, hi: %hi, lo: %lo", a, b, hi, lo);
+		end
+		
+		ALUop <= 2'b11;
+		a <= 32'b111;
+		b <= 32'b11;
+		#10
+		if (hi != 32'b1 & lo != 32'b10) begin
+			$error("a: %b, b: %b, hi: %hi, lo: %lo", a, b, hi, lo);
+		end
+
+		a <= 32'b111011;
+		b <= 32'b1000;
+		#10
+		if (hi != 32'b111 & lo != 32'b11) begin
+			$error("a: %b, b: %b, hi: %hi, lo: %lo", a, b, hi, lo);
 		end
 	end
 endmodule
