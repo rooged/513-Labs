@@ -82,10 +82,84 @@ carry_lookahead_adder CA0(.a(a[0]),.b(C0),.cin(ALUop),.s(s[0]),.cout(cout[0])), 
 
 
 always @ (posedge clk or posedge rst_n) begin
+	//multiplication
+	if (ALUop === 2'b10) begin
+		//check if either are 0 & immediately assigns 0 if so
+		if (a == 32'b0 | b == 32'b0) begin
+			assign hi = 32'b0;
+			assign lo = 32'b0;
+		end else begin
+			//assigns 0 to hi & a to low
+			hi = 32'b0;
+			lo = a;
+			//for loop begin, iterates through 32 bits
+			for (reg i = 0; i < 32; i++) begin
+				//checks if lo[0] is 1, adds b to hi if so
+				if (lo[0] === 1) begin
+					hi = hi + b;
+				end
+				//shifts lo right 1 bit
+				lo = 1 >> lo;
+				//checks if hi[0] is 1 and moves that bit to lo[31] is so
+				if (hi[0] == 1) begin
+					lo[31] = 1;
+				end
+				//shifts hi right 1 bit
+				hi = 1 >> hi;
+			end
+			//final assigns after end loop
+			assign hi = hi;
+			assign lo = lo;
+		end
+	//division
+	end else if (ALUop == 2'b11) begin
+		//checks if b is 0, assigns 0 to hi & lo if so
+		if (b == 32'b0) begin
+			assign hi = 32'b0;
+			assign lo = 32'b0;
+		end else begin
+			//assigns 0 to hi & a to lo
+			hi = 32'b0;
+			lo = a;
 
-	if (ALUop == 2'b11) 
-	begin
-	a[31:0] = 1 << a[31:0]; //shift dividend left 1 bit
+			//shift hi 1 bit & check if lo[31] is 1, adds to hi[0] if so, shift lo left 1 bit
+			hi = 1 << hi;
+			if (lo[31] == 1) begin
+				hi[0] = 1;
+			end
+			lo = 1 << a;
+			
+			//for loop, iterate 32 times
+			for (reg i = 0; i < 32; i++) begin
+				//subtract b from hi
+				hi = hi - b;
+				//if hi >= 0, shift both to left 1 bit & set lo[0] to 1
+				if (hi >= 0) begin
+					hi = 1 << hi;
+					if (lo[31] == 1) begin
+						hi[0] = 1;
+					end
+					lo = 1 << lo;
+					lo[0] = 1;
+				//if hi < 0, add b back to hi, shift both left 1 bit & set lo[0] to 0
+				end else begin
+					hi = hi + b;
+					hi = 1 << hi;
+					if (lo[31] == 1) begin
+						hi[0] = 1;
+					end
+					lo = 1 << lo;
+					lo[0] = 0;
+				end
+			end
+			//shift hi right 1 bit
+			hi = 1 >> hi;
+			//final assign
+			assign hi = hi;
+			assign lo = lo;
+		end
+	end
+	/*a[31:0] = 1 << a[31:0]; //shift dividend left 1 bit
 
 		for(reg i=0; i<=32; i++)
 		begin
@@ -106,12 +180,8 @@ always @ (posedge clk or posedge rst_n) begin
 
 	end
 	assign a[31:15] = hi;
-	assign a[15:0] = lo;
-
+	assign a[15:0] = lo;*/
 end
-
-
-
 endmodule
 
 module carry_lookahead_adder(input logic [3:0] a,b, //operands
