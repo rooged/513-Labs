@@ -13,44 +13,46 @@ logic [5:0] i;
 logic [31:0] hi2, lo2;
 
 reg C0,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14,C15,C16,C17,C18,C19,C20,C21,C22,C23,C24,C25,C26,C27,C28,C29,C30,C31;
-//complements each bit of b (32 bits total) if ALUop = 01
-xor X0(C0, ALUop, b[0]), 
-    X1(C1, ALUop, b[1]), 
-    X2(C2, ALUop, b[2]), 
-    X3(C3, ALUop, b[3]), 
-    X4(C4, ALUop, b[4]), 
-    X5(C5, ALUop, b[5]), 
-    X6(C6, ALUop, b[6]), 
-    X7(C7, ALUop, b[7]), 
-    X8(C8, ALUop, b[8]),
-    X9(C9, ALUop, b[9]),
-    X10(C10, ALUop, b[10]),
-    X11(C11, ALUop, b[11]),
-    X12(C12, ALUop, b[12]),
-    X13(C13, ALUop, b[13]),
-    X14(C14, ALUop, b[14]),
-    X15(C15, ALUop, b[15]),
-    X16(C16, ALUop, b[16]),
-    X17(C17, ALUop, b[17]),
-    X18(C18, ALUop, b[18]),
-    X19(C19, ALUop, b[19]),
-    X20(C20, ALUop, b[20]),
-    X21(C21, ALUop, b[21]),
-    X22(C22, ALUop, b[22]),
-    X23(C23, ALUop, b[23]),
-    X24(C24, ALUop, b[24]),
-    X25(C25, ALUop, b[25]),
-    X26(C26, ALUop, b[26]),
-    X27(C27, ALUop, b[27]),
-    X28(C28, ALUop, b[28]),
-    X29(C29, ALUop, b[29]),
-    X30(C30, ALUop, b[30]),
-    X31(C31, ALUop, b[31]);
-	 
+	//complements each bit of b (32 bits total) if ALUop = 01
+	xor X0(C0, ALUop, b[0]), 
+    	    X1(C1, ALUop, b[1]), 
+    	    X2(C2, ALUop, b[2]), 
+    	    X3(C3, ALUop, b[3]), 
+    	    X4(C4, ALUop, b[4]), 
+    	    X5(C5, ALUop, b[5]), 
+    	    X6(C6, ALUop, b[6]), 
+    	    X7(C7, ALUop, b[7]), 
+    	    X8(C8, ALUop, b[8]),
+    	    X9(C9, ALUop, b[9]),
+    	    X10(C10, ALUop, b[10]),
+    	    X11(C11, ALUop, b[11]),
+    	    X12(C12, ALUop, b[12]),
+    	    X13(C13, ALUop, b[13]),
+    	    X14(C14, ALUop, b[14]),
+    	    X15(C15, ALUop, b[15]),
+    	    X16(C16, ALUop, b[16]),
+    	    X17(C17, ALUop, b[17]),
+    	    X18(C18, ALUop, b[18]),
+    	    X19(C19, ALUop, b[19]),
+    	    X20(C20, ALUop, b[20]),
+    	    X21(C21, ALUop, b[21]),
+    	    X22(C22, ALUop, b[22]),
+    	    X23(C23, ALUop, b[23]),
+    	    X24(C24, ALUop, b[24]),
+    	    X25(C25, ALUop, b[25]),
+    	    X26(C26, ALUop, b[26]),
+    	    X27(C27, ALUop, b[27]),
+    	    X28(C28, ALUop, b[28]),
+    	    X29(C29, ALUop, b[29]),
+    	    X30(C30, ALUop, b[30]),
+    	    X31(C31, ALUop, b[31]);	
 
-
+always @ (posedge clk or posedge rst_n) begin
+	
+	if(ALUop == 2'b00 || ALUop == 2'b01) begin
+		 
 carry_lookahead_adder CA0(.a(a[0]),.b(C0),.cin(ALUop),.s(s[0]),.cout(cout[0])), //Bit 1
-                      CA1(.a(a[1]),.b(C1),.cin(cout[0]),.s(s[1]),.cout(cout[1])), //Bit 2
+		      CA1(.a(a[1]),.b(C1),.cin(cout[0]),.s(s[1]),.cout(cout[1])), //Bit 2
                       CA2(.a(a[2]),.b(C2),.cin(cout[1]),.s(s[2]),.cout(cout[2])), //Bit 3
                       CA3(.a(a[3]),.b(C3),.cin(cout[2]),.s(s[3]),.cout(cout[3])), //Bit 4
 		      CA4(.a(a[4]),.b(C4),.cin(cout[3]),.s(s[4]),.cout(cout[4])), //Bit 5
@@ -80,12 +82,10 @@ carry_lookahead_adder CA0(.a(a[0]),.b(C0),.cin(ALUop),.s(s[0]),.cout(cout[0])), 
                       CA28(.a(a[28]),.b(C28),.cin(cout[27]),.s(s[28]),.cout(cout[28])), //Bit 29
                       CA29(.a(a[29]),.b(C29),.cin(cout[28]),.s(s[29]),.cout(cout[29])), //Bit 30
                       CA30(.a(a[30]),.b(C30),.cin(cout[29]),.s(s[30]),.cout(cout[30])), //Bit 31
-                      CA31(.a(a[31]),.b(C31),.cin(cout[30]),.s(s[31]),.cout(cout[31])); //Bit 32		
+                      CA31(.a(a[31]),.b(C31),.cin(cout[30]),.s(s[31]),.cout(cout[31])); //Bit 32
 
-
-always @ (posedge clk or posedge rst_n) begin
 	//multiplication
-	if (ALUop == 2'b10) begin
+	end else if (ALUop == 2'b10) begin
 		//check if either are 0 & immediately assigns 0 if so
 		if (a == 32'b0 | b == 32'b0) begin
 			$error("a or b is 0");
@@ -168,6 +168,7 @@ always @ (posedge clk or posedge rst_n) begin
 		end
 	end
 end
+
 endmodule
 
 module carry_lookahead_adder(input logic [3:0] a,b, //operands
