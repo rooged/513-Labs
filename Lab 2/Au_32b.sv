@@ -93,6 +93,7 @@ always @ (posedge clk or negedge rst_n) begin
 		if (a == 32'b0 || b == 32'b0) begin
 			hi = 32'b0;
 			lo = 32'b0;
+			zero = 1;
 		end else begin
 			//assigns 0 to hi & a to low
 			hi = 32'b0;
@@ -115,11 +116,11 @@ always @ (posedge clk or negedge rst_n) begin
 		end
 	//division
 	end else if (ALUop == 2'b11) begin
-		$error("enter division");
 		//checks if b is 0, assigns 0 to hi & lo if so
 		if (b == 32'b0) begin
 			hi = 32'b0;
 			lo = 32'b0;
+			zero = 1;
 		end else begin
 			//assigns 0 to hi & a to lo
 			hi = 32'b0;
@@ -134,20 +135,17 @@ always @ (posedge clk or negedge rst_n) begin
 			
 			//for loop, iterate 32 times
 			for (i = 0; i < 32; i++) begin
-				//subtract b from hi
-				hi = hi - b;
-				//$error("hi: %b", hi);
 				//if hi >= 0, shift both to left 1 bit & set lo[0] to 1
-				if (hi >= 0) begin
+				if (hi >= b) begin
+					hi = hi - b;
 					hi = hi << 1;
 					if (lo[31] == 1) begin
 						hi[0] = 1;
 					end
 					lo = lo << 1;
 					lo[0] = 1;
-				//if hi < 0, add b back to hi, shift both left 1 bit & set lo[0] to 0
+				//if hi < 0, shift both left 1 bit & set lo[0] to 0
 				end else begin
-					hi = hi + b;
 					hi = hi << 1;
 					if (lo[31] == 1) begin
 						hi[0] = 1;
