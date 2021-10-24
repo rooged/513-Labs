@@ -82,6 +82,6 @@ module testbench;
 		#10
 		if (hi != 32'b111 & lo != 32'b11) begin
 			$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
-		end*/
+		end
 	end
 endmodule
