@@ -64,7 +64,7 @@ carry_lookahead_adder CA0(.a(a[0]),.b(C0),.cin(ALUop),.s(s2[0]),.cout(cout[0])),
                       CA15(.a(a[15]),.b(C15),.cin(cout[14]),.s(s2[15]),.cout(cout[15])), //Bit 16
                       CA16(.a(a[16]),.b(C16),.cin(cout[15]),.s(s2[16]),.cout(cout[16])), //Bit 17
                       CA17(.a(a[17]),.b(C17),.cin(cout[16]),.s(s2[17]),.cout(cout[17])), //Bit 18
-                      CA18(.a(a[18]),.b(C18),.cin(cout[17]),.s(s2[18]),.cout(cout[18])), //Bit 19	
+                      CA18(.a(a[18]),.b(C18),.cin(cout[17]),.s(s2[18]),.cout(cout[18])), //Bit 19
                       CA19(.a(a[19]),.b(C19),.cin(cout[18]),.s(s2[19]),.cout(cout[19])), //Bit 20
                       CA20(.a(a[20]),.b(C20),.cin(cout[19]),.s(s2[20]),.cout(cout[20])), //Bit 21
                       CA21(.a(a[21]),.b(C21),.cin(cout[20]),.s(s2[21]),.cout(cout[21])), //Bit 22
@@ -83,10 +83,9 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		hi = 32'b0;
 		lo = 32'b0;
-	end
-	if(ALUop == 2'b00 || ALUop == 2'b01) begin
+		zero = 0;
+	end else if (ALUop == 2'b00 || ALUop == 2'b01) begin
 		s = s2;
-
 	//multiplication
 	end else if (ALUop == 2'b10) begin
 		//check if either are 0 & immediately assigns 0 if so
@@ -112,12 +111,13 @@ always @ (posedge clk or negedge rst_n) begin
 				end
 				//shifts hi right 1 bit
 				hi = hi >> 1;
+				s = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
 			end
 		end
 	//division
 	end else if (ALUop == 2'b11) begin
 		//checks if b is 0, assigns 0 to hi & lo if so
-		if (b == 32'b0) begin
+		if (a == 32'b0 || b == 32'b0) begin
 			hi = 32'b0;
 			lo = 32'b0;
 			zero = 1;
@@ -155,6 +155,7 @@ always @ (posedge clk or negedge rst_n) begin
 			end
 			//shift hi right 1 bit
 			hi = hi >> 1;
+			s = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
 		end
 	end
 end
