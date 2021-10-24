@@ -8,7 +8,6 @@ module testbench;
 	wire [31:0] hi;
 	wire [31:0] lo;
 	wire zero;
-	logic [63:0] c;
 	
 	Au_32b uut (
 		.a(a),
@@ -23,65 +22,78 @@ module testbench;
 	);
 	
 	initial begin
+		//multiplication
 		ALUop <= 2'b10;
-		
 		a <= 32'b111;
 		b <= 32'b11;
-		c <= a * b;
 		clk <= 0;
+		#1
 		clk <= 1;
-		#10
-		if (hi != c[63:32] & lo != c[31:0]) begin
-			$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
+		#9
+		if (hi == 32'b0 & lo == 32'b10101) begin
+			$error("Test 1 Passed");
+			//$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
 		end
 		
+		ALUop <= 2'b10;
 		a <= 32'b1;
 		b <= 32'b10;
-		c <= a * b;
 		clk <= 0;
+		#1
 		clk <= 1;
-		#10
-		if (hi != c[63:32] & lo != c[31:0]) begin
-			$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
+		#9
+		if (hi == 32'b0 & lo == 32'b10) begin
+			$error("Test 2 Passed");
+			//$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
 		end
 		
+		ALUop <= 2'b10;
 		a <= 32'b0;
 		b <= 32'b1;
-		c <= a * b;
 		clk <= 0;
+		#1
 		clk <= 1;
-		#10
-		if (hi != c[63:32] & lo != c[31:0]) begin
-			$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
+		#9
+		if (hi == 32'b0 & lo == 32'b0) begin
+			$error("Test 3 Passed");
+			//$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
 		end
 		
-		a <= 32'b11110100001001000000;
-		b <= 32'b1111010000100100000;
-		c <= a * b;
+		ALUop <= 2'b10;
+		a <= 32'b11110100001001000000; //5,000,000
+		b <= 32'b10101011101010010101000000; //45,000,000
 		clk <= 0;
+		#1
 		clk <= 1;
-		#10
-		if (hi != c[63:32] & lo != c[31:0]) begin
-			$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
+		#9
+		if (hi == 32'b1100110010100010 & lo == 32'b11100101000100110001000000000000) begin
+			$error("Test 4 Passed");
+			//$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
 		end
 		
+		//division
 		ALUop <= 2'b11;
 		a <= 32'b111;
 		b <= 32'b11;
 		clk <= 0;
+		#1
 		clk <= 1;
-		#10
-		if (hi != 32'b1 & lo != 32'b10) begin
-			$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
+		#9
+		if (hi == 32'b1 & lo == 32'b10) begin
+			$error("Test 5 Passed");
+			//$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
 		end
 
+		ALUop <= 2'b11;
 		a <= 32'b111011;
 		b <= 32'b1000;
 		clk <= 0;
+		#1
 		clk <= 1;
-		#10
-		if (hi != 32'b111 & lo != 32'b11) begin
-			$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
+		#9
+		if (hi == 32'b111 & lo == 32'b11) begin
+			$error("Test 6 Passed");
+			//$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
 		end
 	end
 endmodule
