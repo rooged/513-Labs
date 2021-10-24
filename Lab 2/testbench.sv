@@ -78,6 +78,17 @@ module testbench;
 			$error("Addition: Test 5 Passed");
 		end
 
+		ALUop = 2'b00;
+		a <= 32'b110011011010010111011000010001;
+		b <= 32'b100000100000110110001110000101;
+		clk <= 0;
+		#1
+		clk <= 1;
+		#9
+		if (s == 32'b01010011111011001101100110010110) begin
+			$error("Addition: Test 6 Passed");
+		end
+
 		//subtraction
 		ALUop = 2'b01;
 		a <= 32'b10;
@@ -113,13 +124,13 @@ module testbench;
 		end
 
 		ALUop = 2'b01;
-		a <= 32'b1001;
-		b <= 32'b11;
+		a <= 32'b1;
+		b <= 32'b1000;
 		clk <= 0;
 		#1
 		clk <= 1;
 		#9
-		if (s == 32'b110) begin
+		if (s == 32'b11111111111111111111111111111001) begin
 			$error("Subtraction: Test 4 Passed");
 		end
 
@@ -136,24 +147,13 @@ module testbench;
 
 		ALUop = 2'b01;
 		a <= 32'b11111111111111111111111111111111;
-		b <= 32'b1;
-		clk <= 0;
-		#1
-		clk <= 1;
-		#9
-		if (s == 32'b11111111111111111111111111111110) begin
-			$error("Subtraction: Test 6 Passed");
-		end
-
-		ALUop = 2'b01;
-		a <= 32'b11111111111111111111111111111111;
 		b <= 32'b11;
 		clk <= 0;
 		#1
 		clk <= 1;
 		#9
 		if (s == 32'b11111111111111111111111111111100) begin
-			$error("Subtraction: Test 7 Passed");
+			$error("Subtraction: Test 6 Passed");
 		end
 
 		//multiplication
@@ -165,8 +165,7 @@ module testbench;
 		clk <= 1;
 		#9
 		if (hi == 32'b0 & lo == 32'b10101) begin
-			$error("Test 1 Passed");
-			//$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
+			$error("Multiplication: Test 1 Passed");
 		end
 		
 		ALUop <= 2'b10;
@@ -177,8 +176,7 @@ module testbench;
 		clk <= 1;
 		#9
 		if (hi == 32'b0 & lo == 32'b10) begin
-			$error("Test 2 Passed");
-			//$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
+			$error("Multiplication: Test 2 Passed");
 		end
 		
 		ALUop <= 2'b10;
@@ -189,8 +187,7 @@ module testbench;
 		clk <= 1;
 		#9
 		if (hi == 32'b0 & lo == 32'b0) begin
-			$error("Test 3 Passed");
-			//$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
+			$error("Multiplication: Test 3 Passed");
 		end
 		
 		ALUop <= 2'b10;
@@ -201,8 +198,29 @@ module testbench;
 		clk <= 1;
 		#9
 		if (hi == 32'b1100110010100010 & lo == 32'b11100101000100110001000000000000) begin
-			$error("Test 4 Passed");
-			//$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
+			$error("Multiplication: Test 4 Passed");
+		end
+
+		ALUop <= 2'b10;
+		a <= 32'b1111111001101100101110100101101; //2,134,269,229
+		b <= 32'b1101000101001110101101000100001; //1,755,798,049
+		clk <= 0;
+		#1
+		clk <= 1;
+		#9
+		if (hi == 32'b00110100000000010011111100011010 & lo == 32'b10010011000111101101010011001101) begin
+			$error("Multiplication: Test 5 Passed");
+		end
+
+		ALUop <= 2'b10;
+		a <= 32'b10110010110110010; //91,570
+		b <= 32'b1001001100001110010001010101010; //1,233,593,002
+		clk <= 0;
+		#1
+		clk <= 1;
+		#9
+		if (hi == 32'b0110011010111100 & lo == 32'b10010011010011010010110000110100) begin
+			$error("Multiplication: Test 6 Passed");
 		end
 		
 		//division
@@ -214,8 +232,7 @@ module testbench;
 		clk <= 1;
 		#9
 		if (hi == 32'b1 & lo == 32'b10) begin
-			$error("Test 5 Passed");
-			//$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
+			$error("Division: Test 1 Passed");
 		end
 
 		ALUop <= 2'b11;
@@ -226,8 +243,7 @@ module testbench;
 		clk <= 1;
 		#9
 		if (hi == 32'b11 & lo == 32'b111) begin
-			$error("Test 6 Passed");
-			//$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
+			$error("Division: Test 2 Passed");
 		end
 
 		ALUop <= 2'b11;
@@ -238,20 +254,40 @@ module testbench;
 		clk <= 1;
 		#9
 		if (hi == 32'b0 & lo == 32'b0) begin
-			$error("Test 7 Passed");
-			//$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
+			$error("Division: Test 3 Passed");
 		end
 
 		ALUop <= 2'b11;
-		a <= 32'b110101001;
-		b <= 32'b0;
+		a <= 32'b1110010111001011010010110110010; //1,927,652,786
+		b <= 32'b1011;
 		clk <= 0;
 		#1
 		clk <= 1;
 		#9
-		if (hi == 32'b0 & lo == 32'b0) begin
-			$error("Test 7 Passed");
-			//$error("a: %b, b: %b, hi: %b, lo: %b", a, b, hi, lo);
+		if (hi == 32'b100 & lo == 32'b01010011100011111011111001010) begin
+			$error("Division: Test 4 Passed");
+		end
+
+		ALUop <= 2'b11;
+		a <= 32'b101;
+		b <= 32'b1011111011010010110110; //3,126,454
+		clk <= 0;
+		#1
+		clk <= 1;
+		#9
+		if (hi == 32'b0101 & lo == 32'b0) begin
+			$error("Division: Test 5 Passed");
+		end
+
+		ALUop <= 2'b11;
+		a <= 32'b1011100101011010101010011000; //194,357,912
+		b <= 32'b100;
+		clk <= 0;
+		#1
+		clk <= 1;
+		#9
+		if (hi == 32'b0 & lo == 32'b010111001010110101010100110) begin
+			$error("Division: Test 6 Passed");
 		end
 	end
 endmodule
