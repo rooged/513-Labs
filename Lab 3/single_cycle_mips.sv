@@ -165,3 +165,14 @@ module mux2 #(parameter WIDTH = 8)
 	assign y = s ? d1 : d0;
 endmodule
 
+module signext(input logic [15:0] a,
+		output logic [31:0] y);
+
+	assign y = {{16{a[15]}}, a};
+endmodule
+
+module alu (input logic srca, srcb, alucontrol,
+		output logic aluout, zero);
+
+endmodule
+
