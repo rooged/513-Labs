@@ -1,3 +1,6 @@
+//Computer Organization and Design pages: 418, 788, 808
+//Digital Design and Computer Arch pages: 430-433, 435-440, 619-622
+
 module single_cycle_mips ( input logic clk, input logic rst_n);
 
 	logic [31:0] pc, instr;
@@ -19,6 +22,24 @@ module single_cycle_mips ( input logic clk, input logic rst_n);
 			zero, pc, instr,
 			aluout, writedata, readdata);
 
+endmodule
+
+module alu (input logic [31:0] srca, srcb,
+			input logic [2:0] ctrl,
+		output logic [31:0] aluout,
+		output logic [0:0] zero);
+	logic [31:0] srcc, srcbOut;
+	
+	assign srcbOut = ctrl[2] ? ~srcb : srcb;
+	assign srcc = srca + srcbOut + ctrl[2];
+	
+	always_comb
+		case (ctrl[1:0])
+			2'b00: aluout <= srca & srcbOut; //and
+			2'b01: aluout <= srca | srcbOut; //or
+			2'b10: aluout <= srcc; //add
+			2'b11: aluout <= srcc[31]; //set on less than
+		endcase
 endmodule
 
 module aludec(input logic [5:0] funct,
@@ -171,8 +192,12 @@ module signext(input logic [15:0] a,
 	assign y = {{16{a[15]}}, a};
 endmodule
 
-module alu (input logic srca, srcb, alucontrol,
-		output logic aluout, zero);
- //not sure yet what goes here
-endmodule
+module flopr #(parameter WIDTH=8)
+		(input logic clk, reset,
+		input logic [WIDTH-1:0] d,
+		output logic [WIDTH-1:0] q);
 
+	always_ff @(posedge clk, posedge reset)
+		if (reset) q <= 0;
+		else q <= d;
+endmodule	
