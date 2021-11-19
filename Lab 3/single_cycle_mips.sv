@@ -1,6 +1,3 @@
-//Computer Organization and Design pages: 418, 788, 808
-//Digital Design and Computer Arch pages: 430-433, 435-440, 619-622
-
 module single_cycle_mips ( input logic clk, input logic rst_n);
 
 	logic [31:0] pc, instr;
@@ -16,30 +13,14 @@ module single_cycle_mips ( input logic clk, input logic rst_n);
 			alusrc, regdst, regwrite, jump,
 			alucontrol);
 
-	datapath dp(clk, reset, memtoreg, pcsrc,
+	datapath dp(clk, rst_n, memtoreg, pcsrc,
 			alusrc, regdst, regwrite, jump,
 			alucontrol,
 			zero, pc, instr,
 			aluout, writedata, readdata);
+	imem imem(pc[7:2], instr);
+	dmem dmem(clk, memwrite, dataadr, writedata, readdata);
 
-endmodule
-
-module alu (input logic [31:0] srca, srcb,
-			input logic [2:0] ctrl,
-		output logic [31:0] aluout,
-		output logic [0:0] zero);
-	logic [31:0] srcc, srcbOut;
-	
-	assign srcbOut = ctrl[2] ? ~srcb : srcb;
-	assign srcc = srca + srcbOut + ctrl[2];
-	
-	always_comb
-		case (ctrl[1:0])
-			2'b00: aluout <= srca & srcbOut; //and
-			2'b01: aluout <= srca | srcbOut; //or
-			2'b10: aluout <= srcc; //add
-			2'b11: aluout <= srcc[31]; //set on less than
-		endcase
 endmodule
 
 module aludec(input logic [5:0] funct,
@@ -103,7 +84,7 @@ module controller(input logic [5:0] op, funct,
 	assign pcsrc = branch & zero;
 endmodule
 
-module datapath(input logic clk, reset,
+module datapath(input logic clk, rst_n,
 		input logic memtoreg, pcsrc,
 		input logic alusrc, regdst,
 		input logic regwrite, jump,
@@ -119,7 +100,7 @@ module datapath(input logic clk, reset,
 		logic [31:0] srca, srcb;
 		logic [31:0] result;
 		// next PC logic
-		flopr #(32) pcreg(clk, reset, pcnext, pc);
+		flopr #(32) pcreg(clk, rst_n, pcnext, pc);
 
 	adder pcadd1(pc, 32'b100, pcplus4);
 
@@ -192,12 +173,51 @@ module signext(input logic [15:0] a,
 	assign y = {{16{a[15]}}, a};
 endmodule
 
+module alu (input logic srca, srcb, alucontrol,
+		input logic [2:0] ctrl,
+		output logic aluout, zero);
+
+	logic [31:0] srcc, srcbOut;
+	
+	assign srcbOut = ctrl[2] ? ~srcb : srcb;
+	assign srcc = srca + srcbOut + ctrl[2];
+	
+	always_comb
+		case (ctrl[1:0])
+			2'b00: aluout <= srca & srcbOut; //and
+			2'b01: aluout <= srca | srcbOut; //or
+			2'b10: aluout <= srcc; //add
+			2'b11: aluout <= srcc[31]; //set on less than
+		endcase
+endmodule
+
 module flopr #(parameter WIDTH=8)
-		(input logic clk, reset,
+		(input logic clk, rst_n,
 		input logic [WIDTH-1:0] d,
 		output logic [WIDTH-1:0] q);
 
-	always_ff @(posedge clk, posedge reset)
-		if (reset) q <= 0;
+	always_ff @(posedge clk, posedge rst_n)
+		if (rst_n) q <= 0;
 		else q <= d;
 endmodule	
+
+module dmem(input logic clk, we,
+		input logic [31:0] a, wd,
+		output logic [31:0] rd);
+
+	logic [31:0] RAM[63:0];
+	assign rd = RAM[a[31:2]]; // word aligned
+
+	always_ff @(posedge clk)
+		if (we) RAM[a[31:2]] <= wd;
+endmodule
+
+module imem(input logic [5:0] a,
+		output logic [31:0] rd);
+
+	logic [31:0] RAM[63:0];
+
+	initial
+		$readmemh("C:/Users/Carro/OneDrive/Desktop/CSCE513/memfile.dat", RAM);
+		assign rd = RAM[a]; // word aligned
+endmodule
