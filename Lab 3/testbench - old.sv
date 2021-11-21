@@ -1,4 +1,4 @@
-module testbench();
+module testbench3();
 logic clk; logic rst_n;
 
 // instantiate device to be tested 
@@ -31,4 +31,19 @@ always @(dut.pc) begin
 	end
 end
 endmodule
+
+module top(input logic clk, rst_n);
+
+
+
+	logic [31:0] pc, instr, readdata, writedata, dataadr;
+	logic memwrite;
+
+	//instantiate processor and memories
+	single_cycle_mips mips(clk, rst_n);
+	
+	imem imem(pc[7:2], instr);
+	dmem dmem(clk, memwrite, dataadr, writedata, readdata);
+endmodule
+
 
