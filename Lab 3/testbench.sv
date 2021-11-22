@@ -15,7 +15,7 @@ always
 	begin clk <= 1; # 5; clk <= 0; # 5;
 end
 
-parameter end_pc = 32'h48;
+parameter end_pc = 32'h400048;
 
 //check results
 always @(dut.pc) begin

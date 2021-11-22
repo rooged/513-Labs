@@ -1,5 +1,6 @@
+//written by Caitlynn Jones & Timothy Gedney
 module single_cycle_mips (input logic clk, input logic rst_n);
-	//top level logic
+	//top level logic wires
 	logic [31:0] pc, instr, readdata, writedata, dataadr;
 	logic memwrite;
 
@@ -15,19 +16,22 @@ module cpu (input logic clk, rst_n,
 			output logic memwrite,
 			output logic [31:0] aluout, writedata,
 			input logic [31:0] readdata);
+	//connecting wires initialization
 	logic memtoreg, alusrc, regdst, regwrite, jump, pcsrc, zero;
 	logic [2:0] alucontrol;
-	
+
+	//instantiate controller & datapath modules
 	controller c(instr[31:26], instr[5:0], zero, memtoreg, memwrite, pcsrc, alusrc, regdst,
 		regwrite, jump, alucontrol);
 	datapath dp(clk, rst_n, memtoreg, pcsrc, alusrc, regdst, regwrite, jump, alucontrol,
 		zero, pc, instr, aluout, writedata, readdata);
-	
+
 endmodule
 
 module aludec (input logic [5:0] funct,
 				input logic [1:0] aluop,
 				output logic [2:0] alucontrol);
+	//combinational logic to determine which instruction based on alu opcode
 	always_comb begin
 		case(aluop)
 			2'b00: alucontrol <= 3'b010; // add (for lw/sw/addi)
@@ -47,11 +51,11 @@ endmodule
 module decoder (input logic [5:0] op, 
 				output logic memtoreg, memwrite, branch, alusrc, regdst, regwrite, jump,
 				output logic [1:0] aluop);
-
+	//control signal & assignment
 	logic [8:0] controls;
-
 	assign {regwrite, regdst, alusrc, branch, memwrite, memtoreg, jump, aluop} = controls;
 
+	//control signals for each type of instruction
 	always_comb begin
 		case (op)
 			6'b000000: controls <= 9'b110000010; // RTYPE add, sub, and, or, slt
@@ -72,9 +76,11 @@ module controller (input logic [5:0] op, funct,
 	logic [1:0] aluop;
 	logic branch;
 
+	//decoder initializations & wire conenctions
 	decoder decode(op, memtoreg, memwrite, branch, alusrc, regdst, regwrite, jump, aluop);
 	aludec ad(funct, aluop, alucontrol);
 
+	//pc overwrite if branching
 	assign pcsrc = branch & zero;
 endmodule
 
@@ -85,12 +91,12 @@ module datapath (input logic clk, rst_n, memtoreg, pcsrc, alusrc, regdst, regwri
 				input logic [31:0] instr,
 				output logic [31:0] aluout, writedata,
 				input logic [31:0] readdata);
-
-		logic [4:0] writereg;
-		logic [31:0] pcnext, pcnextbr, pcplus4, pcbranch;
-		logic [31:0] signimm, signimmsh;
-		logic [31:0] srca, srcb;
-		logic [31:0] result;
+	//datapath wires
+	logic [4:0] writereg;
+	logic [31:0] pcnext, pcnextbr, pcplus4, pcbranch;
+	logic [31:0] signimm, signimmsh;
+	logic [31:0] srca, srcb;
+	logic [31:0] result;
 
 	// next PC logic
 	flopr #(32) pcreg(clk, rst_n, pcnext, pc);
@@ -146,6 +152,7 @@ module mux2 #(parameter WIDTH = 8)
 		(input logic [WIDTH-1:0] d0, d1,
 		input logic s,
 		output logic [WIDTH-1:0] y);
+	//2 input mux
 	assign y = s ? d1 : d0;
 endmodule
 
@@ -161,10 +168,14 @@ module alu (input logic [31:0] a, b,
 				output logic zero);
 	logic [31:0] c, bout;
 	
+	//assigns zero flag if needed
 	assign zero = (aluout == 32'd0) ? 1'b1 : 1'b0;
+	//slt logic assignment
 	assign c = (a[31] != b[31]) ? ((a[31] > b[31]) ? 1 : 0) : ((a < b) ? 1 : 0);
+	//two's compliment of b if subtraction
 	assign bout = alucontrol[2] ? ~b + 1'b1 : b;
 
+	//alu assignment based on alu op codes
 	assign aluout =
 		(alucontrol == 3'b000) ? a & b : //and
 		(alucontrol == 3'b001) ? a | b : //or
@@ -177,7 +188,7 @@ module flopr #(parameter WIDTH=8)
 		(input logic clk, rst_n,
 		input logic [WIDTH-1:0] d,
 		output logic [WIDTH-1:0] q);
-
+	//flip-flop for assigning pc value
 	always_ff @(posedge clk, posedge rst_n) begin
 		if (rst_n) begin
 			q <= 0;
@@ -187,6 +198,7 @@ module flopr #(parameter WIDTH=8)
 	end
 endmodule	
 
+//data memory for sw instructions
 module dmem (input logic clk, we,
 				input logic [31:0] a, wd,
 				output logic [31:0] rd);
@@ -194,6 +206,7 @@ module dmem (input logic clk, we,
 
 	assign rd = RAM[a[31:2]]; //word aligned
 
+	//assigns based on mem address
 	always_ff @(posedge clk) begin
 		if (we) begin
 			RAM[a[31:2]] <= wd;
@@ -201,12 +214,14 @@ module dmem (input logic clk, we,
 	end
 endmodule
 
+//instruction memory for storing instruction sets
 module imem (input logic [5:0] a,
 				output logic [31:0] rd);
 	logic [31:0] RAM[63:0];
 
+	//loads in instruction memory from hex dump .dat file
 	initial begin
-		$readmemh("C:/Users/roo_g/OneDrive/Documents/School/Computer Architecture/513-Labs/Lab 3/memfile.dat", RAM);
+		$readmemh("memfile.dat", RAM);
 	end
 
 	assign rd = RAM[a]; //word aligned
